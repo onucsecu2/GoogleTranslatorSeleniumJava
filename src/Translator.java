@@ -1,28 +1,19 @@
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
+import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.seleniumhq.jetty9.util.resource.Resource;
-
 import com.opencsv.CSVWriter;
-
-import java.awt.GridLayout;
 import javax.swing.JRadioButton;
 import javax.swing.JProgressBar;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,27 +22,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.awt.event.ActionEvent;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 
 public class Translator extends JFrame {
@@ -83,12 +62,13 @@ public class Translator extends JFrame {
 	 */
 
 	public static void main(String[] args) {
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					Translator frame = new Translator();
 					frame.setVisible(true);
-
+					
 					
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -110,6 +90,7 @@ public class Translator extends JFrame {
 	 * Create the frame.
 	 */
 	public Translator() {
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 505, 500);
 		contentPane = new JPanel();
@@ -121,6 +102,7 @@ public class Translator extends JFrame {
 		rdbtnChrome.setBounds(8, 8, 91, 23);
 		contentPane.add(rdbtnChrome);
 		
+	
 
 		
 		rdbtnChrome.addActionListener(new ActionListener() {
@@ -164,9 +146,12 @@ public class Translator extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
+
+				
 				status=status+"\n"+"Detecting OS...";
 				txtpnStatus.setText(status);
 				checkOS();
+				
 				txtpnStatus.setText(status);
 				if(err) {
 					status=status+"\n"+"Further examination is halted!!";
@@ -202,271 +187,61 @@ public class Translator extends JFrame {
 							public void actionPerformed(ActionEvent arg0) {
 								// TODO Auto-generated method stub
 								String x = String.valueOf(comboBox.getSelectedItem());
-								if(browser==1) {
-									if(x.equalsIgnoreCase("Chrome v73")) {
-										if(os==1) {
-											String dir="c:\\chromedriver.exe";
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("chromedriver73.exe");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir);
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										}else {
-											String dir=System.getProperty("user.home");
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("chromedriver73");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir+"/chromedriver");
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										    File file1 = new File(System.getProperty("user.home")+"/chromedriver"); 
-										    file1.setExecutable(true);
-										}
-									} else if(x.equalsIgnoreCase("Chrome v74")) {
-										if(os==1) {
-											String dir="C:\\chromedriver.exe";
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("chromedriver74.exe");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir);
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										}else {
-											String dir=System.getProperty("user.home");
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("chromedriver74");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir+"/chromedriver");
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										    File file1 = new File(System.getProperty("user.home")+"/chromedriver"); 
-										    file1.setExecutable(true);
-										}
-									}if(x.equalsIgnoreCase("Chrome v75")) {
-										if(os==1) {
-											String dir="c:\\chromedriver.exe";
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("chromedriver75.exe");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir);
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										}else {
-											String dir=System.getProperty("user.home");
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("chromedriver75");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir+"/chromedriver");
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										    File file1 = new File(System.getProperty("user.home")+"/chromedriver"); 
-										    file1.setExecutable(true);
-										}
-									}
-
-								}else {
-									if(x.equalsIgnoreCase("Mozilla 32 bit")) {
-										if(os==1) {
-											String dir="C:\\geckhodriver.exe";
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("geckodriver32.exe");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir);
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										}else {
-											String dir=System.getProperty("user.home");
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("geckodriver32");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir+"/geckodriver");
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										    File file1 = new File(System.getProperty("user.home")+"/geckodriver"); 
-										    file1.setExecutable(true);
-										}
+								String dir=System.getProperty("user.home");
+								if(x.equalsIgnoreCase("Chrome v73")) {
+									if(os==1) {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("chromedriver73.exe");
+								        fileplace(file,dir+"\\chromedriver.exe");
 									}else {
-										if(os==1) {
-											String dir=System.getProperty("C:\\ssgeckodriver.exe");
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("geckoriver64.exe");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir);
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-										}else {
-											String dir=System.getProperty("user.home");
-											 Translator main = new Translator();
-										        File file = main.getFileFromResources("geckodriver64");
-										        
-										        byte[] buffer = new byte[1024];
-										        try {
-													InputStream bis = new  FileInputStream(file);
-													
-													 OutputStream os =new FileOutputStream (dir+"/geckodriver");
-													 int length;
-													 
-													 while ((length = bis.read(buffer)) > 0) {
-												            os.write(buffer, 0, length);
-												     }
-													 bis.close();
-													 os.close();
-												} catch (FileNotFoundException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-											
-										    File file1 = new File(System.getProperty("user.home")+"/geckodriver"); 
-										    file1.setExecutable(true);
-										}
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("chromedriver73");
+								        fileplace(file,dir+"/chromedriver");
+								        setFileExecutable(dir+"/chromedriver");
+									}
+								}else if(x.equalsIgnoreCase("Chrome v74")) {
+									if(os==1) {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("chromedriver74.exe");
+								        fileplace(file,dir+"\\chromedriver.exe");
+									}else {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("chromedriver74");
+								        fileplace(file,dir+"/chromedriver");
+								        setFileExecutable(dir+"/chromedriver");
+									}
+								}else if(x.equalsIgnoreCase("Chrome v75")) {
+									if(os==1) {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("chromedriver75.exe");
+								        fileplace(file,dir+"\\chromedriver.exe");
+									}else {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("chromedriver75");
+								        fileplace(file,dir+"/chromedriver");
+								        setFileExecutable(dir+"/chromedriver");
+									}
+								}else if(x.equalsIgnoreCase("Mozilla 32 bit")){
+									if(os==1) {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("geckodriver32.exe");
+								        fileplace(file,dir+"\\geckodriver.exe");
+									}else {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("geckodriver32");
+								        fileplace(file,dir+"/geckodriver");
+								        setFileExecutable(dir+"/geckodriver");
+									}
+								}else {
+									if(os==1) {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("geckodriver64.exe");
+								        fileplace(file,dir+"\\geckodriver.exe");
+									}else {
+										Translator main = new Translator();
+								        File file = main.getFileFromResources("geckodriver64");
+								        fileplace(file,dir+"/geckodriver");
+								        setFileExecutable(dir+"/geckodriver");
 									}
 								}
 								if(!err) {
@@ -483,6 +258,36 @@ public class Translator extends JFrame {
 									txtpnStatus.setText(status);
 								}
 							}
+
+							private void setFileExecutable(String dir) {
+								// TODO Auto-generated method stub
+							    File file = new File(dir); 
+							    file.setExecutable(true);
+							}
+
+							private void fileplace(File file, String dir) {
+								// TODO Auto-generated method stub
+						        byte[] buffer = new byte[1024];
+						        try {
+									InputStream bis = new  FileInputStream(file);
+									
+									 OutputStream os =new FileOutputStream (dir);
+									 int length;
+									 
+									 while ((length = bis.read(buffer)) > 0) {
+								            os.write(buffer, 0, length);
+								     }
+									 bis.close();
+									 os.close();
+								} catch (FileNotFoundException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+
 						});
 
 						btnSelectFilecsv.addActionListener(new ActionListener() {
@@ -609,13 +414,13 @@ public class Translator extends JFrame {
 					System.setProperty("webdriver.gecko.driver", System.getProperty("user.home")+"/geckodriver");
 					driver =new FirefoxDriver() ;
 				}else if(browser==2 && os==1) {
-					System.setProperty("webdriver.gecko.driver", "C:\\geckodriver.exe");
+					System.setProperty("webdriver.gecko.driver", System.getProperty("user.home")+"/geckodriver.exe");
 					driver =new FirefoxDriver() ;
 				}else if(browser==1 && os==2) {
 					System.setProperty("webdriver.chrome.driver",System.getProperty("user.home")+"/chromedriver");
 					driver =new ChromeDriver() ;
 				}else if(browser==1 && os==1) {
-					System.setProperty("webdriver.chrome.driver","C:\\chromedriver.exe");
+					System.setProperty("webdriver.chrome.driver",System.getProperty("user.home")+"/chromedriver.exe");
 					driver =new ChromeDriver() ;
 				}
 		        String baseUrl = "https://translate.google.com/#view=home&op=translate&sl=en&tl=bn";					
@@ -727,13 +532,17 @@ public class Translator extends JFrame {
 	}
 	private File getFileFromResources(String fileName) {
 		// TODO Auto-generated method stub
+
+		
 		 ClassLoader classLoader = getClass().getClassLoader();
-		 URL resource = classLoader.getResource(fileName);
+		 URL resource =classLoader.getResource(fileName);
 	     if (resource == null) {
-	            throw new IllegalArgumentException("file is not found!");
+	            throw new IllegalArgumentException("file is not found!!!!");
+
 	      } else {
 	            return new File(resource.getFile());
 	      }
 	}
+	
 
 }
