@@ -22,8 +22,19 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +47,7 @@ import javax.swing.JLabel;
 public class Translator extends JFrame {
 
 	private WebDriver driver =null;
-	
+	private URL resource;
 	private JPanel contentPane;
 	private JComboBox comboBox ;
 	private JTextPane txtpnStatus;
@@ -186,67 +197,91 @@ public class Translator extends JFrame {
 							@Override
 							public void actionPerformed(ActionEvent arg0) {
 								// TODO Auto-generated method stub
+								status=status+"\nExtracting .... ";
+								txtpnStatus.setText(status);
 								String x = String.valueOf(comboBox.getSelectedItem());
 								String dir=System.getProperty("user.home");
 								if(x.equalsIgnoreCase("Chrome v73")) {
 									if(os==1) {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("chromedriver73.exe");
-								        fileplace(file,dir+"\\chromedriver.exe");
+								        File file;
+										file = main.getFileFromResources("chromedriver73.exe");
+										fileplace(file,dir+"\\chromedriver.exe");
+
 									}else {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("chromedriver73");
-								        fileplace(file,dir+"/chromedriver");
-								        setFileExecutable(dir+"/chromedriver");
+								        File file;
+										file = main.getFileFromResourcesL("chromedriver73");
+										fileplace(file,dir+"/chromedriver");
+										setFileExecutable(dir+"/chromedriver");
+
 									}
 								}else if(x.equalsIgnoreCase("Chrome v74")) {
 									if(os==1) {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("chromedriver74.exe");
-								        fileplace(file,dir+"\\chromedriver.exe");
+								        File file;
+										file = main.getFileFromResources("chromedriver74.exe");
+										  fileplace(file,dir+"\\chromedriver.exe");
+								      
 									}else {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("chromedriver74");
-								        fileplace(file,dir+"/chromedriver");
-								        setFileExecutable(dir+"/chromedriver");
+								        File file;
+										file = main.getFileFromResourcesL("chromedriver74");
+										fileplace(file,dir+"/chromedriver");
+										setFileExecutable(dir+"/chromedriver");
+
 									}
 								}else if(x.equalsIgnoreCase("Chrome v75")) {
 									if(os==1) {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("chromedriver75.exe");
-								        fileplace(file,dir+"\\chromedriver.exe");
+								        File file;
+										file = main.getFileFromResources("chromedriver75.exe");
+										fileplace(file,dir+"\\chromedriver.exe");
+								        
 									}else {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("chromedriver75");
-								        fileplace(file,dir+"/chromedriver");
-								        setFileExecutable(dir+"/chromedriver");
+								        File file;
+										file = main.getFileFromResourcesL("chromedriver75");
+										fileplace(file,dir+"/chromedriver");
+										setFileExecutable(dir+"/chromedriver");
+
 									}
-								}else if(x.equalsIgnoreCase("Mozilla 32 bit")){
+								}else if(x.equalsIgnoreCase("Mozilla 32 bit")){ 
 									if(os==1) {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("geckodriver32.exe");
-								        fileplace(file,dir+"\\geckodriver.exe");
+								        File file;
+										file = main.getFileFromResources("geckodriver32.exe");
+										 fileplace(file,dir+"\\geckodriver.exe");
+								       
 									}else {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("geckodriver32");
-								        fileplace(file,dir+"/geckodriver");
-								        setFileExecutable(dir+"/geckodriver");
+								        File file;
+										file = main.getFileFromResourcesL("geckodriver32");
+										fileplace(file,dir+"/geckodriver");
+										setFileExecutable(dir+"/geckodriver");
+
 									}
 								}else {
 									if(os==1) {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("geckodriver64.exe");
-								        fileplace(file,dir+"\\geckodriver.exe");
+								        File file;
+										file = main.getFileFromResources("geckodriver64.exe");
+										fileplace(file,dir+"\\geckodriver.exe");
+								        
 									}else {
 										Translator main = new Translator();
-								        File file = main.getFileFromResources("geckodriver64");
-								        fileplace(file,dir+"/geckodriver");
-								        setFileExecutable(dir+"/geckodriver");
+								        File file;
+										file = main.getFileFromResourcesL("geckodriver64");
+
+										fileplace(file,dir+"/geckodriver");
+										setFileExecutable(dir+"/geckodriver");
+								        	
+
 									}
 								}
 								if(!err) {
 									
-									status=status+"\nExtracting .... done";
+									status=status+"done";
 									txtpnStatus.setText(status);
 									chckbxGeckoDriver.setSelected(true);
 									btnSelectFilecsv.setEnabled(true);
@@ -254,7 +289,7 @@ public class Translator extends JFrame {
 									btnCheckSetting.setEnabled(false);
 								}
 								else {
-									
+									status=status+"failed!";
 									txtpnStatus.setText(status);
 								}
 							}
@@ -280,6 +315,7 @@ public class Translator extends JFrame {
 									 bis.close();
 									 os.close();
 								} catch (FileNotFoundException e) {
+									err=true;
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								} catch (IOException e) {
@@ -431,8 +467,12 @@ public class Translator extends JFrame {
 				System.out.println(translated);
 				File file = new File(System.getProperty("user.home")+"/result.csv");
 				try {
-					FileWriter outputfile = new FileWriter(file);
-					writer = new CSVWriter(outputfile);
+					
+					//FileWriter outputfile = new FileWriter(file);
+					//writer = new CSVWriter(outputfile);
+					PrintWriter writer = new PrintWriter(file, "UTF-8");
+					
+					
 					int i=0;
 				for (String string : records) {
 					//System.out.println(string);
@@ -451,10 +491,11 @@ public class Translator extends JFrame {
 					translated.add(ans);
 					giventext.clear();
 					progressBar.setValue(i);
-					String str[] = new String[] {ans};
-					
-					writer.writeNext(str);
+					//String str[] = new String[] {ans};
+					writer.println(ans);
+					//writer.writeNext(str);
 				}
+				
 				driver.close();
 					
 					
@@ -530,19 +571,41 @@ public class Translator extends JFrame {
 		lblOutput.setBounds(22, 93, 457, 15);
 		contentPane.add(lblOutput);
 	}
-	private File getFileFromResources(String fileName) {
-		// TODO Auto-generated method stub
-
+	private File getFileFromResources(String fileName)  {
 		
+		// TODO Auto-generated method stub
 		 ClassLoader classLoader = getClass().getClassLoader();
-		 URL resource =classLoader.getResource(fileName);
-	     if (resource == null) {
-	            throw new IllegalArgumentException("file is not found!!!!");
-
-	      } else {
-	            return new File(resource.getFile());
-	      }
+				 InputStream is=classLoader.getResourceAsStream(fileName);
+				 try {
+					FileOutputStream outputStream = new FileOutputStream(System.getProperty("user.home")+"\\temp.exe");
+					int read = 0;
+					byte[] bytes = new byte[1024];
+			        while ((read = is.read(bytes)) != -1) {
+			            outputStream.write(bytes, 0, read);
+			        }
+			        outputStream.close();
+			        
+		
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				 return new File(System.getProperty("user.home")+"\\temp.exe");
 	}
-	
+
+	 private File getFileFromResourcesL(String fileName) {
+		 ClassLoader classLoader = getClass().getClassLoader();
+		 resource =classLoader.getResource(fileName);
+	     
+		 if (resource == null) {
+	           throw new IllegalArgumentException("file is not found!!!!");
+
+	     } else { 
+	           return new File(resource.getFile());
+	     }
+	 }
 
 }
