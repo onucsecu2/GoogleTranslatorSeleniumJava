@@ -16,5 +16,13 @@ public class openFile {
 			//System.out.println(selectedFile.getAbsolutePath());
 		}
 	}
-
+	public void locateJar() {
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("JAR file", "jar");
+		jfc.setFileFilter(filter);
+		int returnValue = jfc.showOpenDialog(null);
+		if (returnValue == JFileChooser.APPROVE_OPTION) {
+			selectedFile = jfc.getSelectedFile();
+			//System.out.println(selectedFile.getAbsolutePath());
+		}
+	}
 }

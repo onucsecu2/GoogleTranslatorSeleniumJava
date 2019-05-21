@@ -32,6 +32,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,7 +55,7 @@ public class Translator extends JFrame {
 	private JTextPane txtpnStatus;
 	private JCheckBox chckbxOsDetection, chckbxBrowserAvailability,chckbxGeckoDriver,chckbxSizeOfSentence ;
 	private JRadioButton rdbtnChrome,rdbtnMozilla ;
-	private JButton btnCheckSetting, btnExtract,btnSelectFilecsv, btnTranslate,btnStop;
+	private JButton btnCheckSetting, btnExtract,btnSelectFilecsv, btnTranslate,btnStop,btnCheckUpdate;
 	private JProgressBar progressBar;
 	private static String status="status: ";
 	private static String OS  = System.getProperty("os.name").toLowerCase();
@@ -103,7 +105,7 @@ public class Translator extends JFrame {
 	public Translator() {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 505, 500);
+		setBounds(100, 100, 532, 510);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -551,7 +553,7 @@ public class Translator extends JFrame {
 		
 		txtpnStatus = new JTextPane();
 		txtpnStatus.setText("Status :");
-		txtpnStatus.setBounds(190, 123, 303, 284);
+		txtpnStatus.setBounds(190, 123, 315, 284);
 		contentPane.add(txtpnStatus);
 		
 		comboBox = new JComboBox();
@@ -570,6 +572,73 @@ public class Translator extends JFrame {
 		lblOutput = new JLabel("Output :"+DIR);
 		lblOutput.setBounds(22, 93, 457, 15);
 		contentPane.add(lblOutput);
+		
+		btnCheckUpdate = new JButton("Check Update");
+		btnCheckUpdate.setBounds(365, 7, 140, 25);
+		contentPane.add(btnCheckUpdate);
+		btnCheckUpdate.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				status="Locate the Application file...";
+				txtpnStatus.setText(status);
+				status="ok\nUpdating...\nListing files to update...";
+				txtpnStatus.setText(status);
+				updateJar uj =new updateJar();
+				File filesToAdd = new File ("/home/onu/Desktop/tracer/Translator.class") ;
+				openFile of =new openFile();
+				of.locateJar();
+				File srcJarFile  = of.selectedFile;
+				List<String> filesList = new ArrayList<>();
+				try {
+					filesList=ListFile();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+
+					status=status+"failed";
+					txtpnStatus.setText(status);
+					e1.printStackTrace();
+				}
+				status=status+"ok\nDownloading updated files...";
+				txtpnStatus.setText(status);
+				try {
+					uj.updateJarFile(srcJarFile,filesList);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					status="failed installing";
+					txtpnStatus.setText(status);
+					e.printStackTrace();
+				}
+
+				status=status+"success\n";
+				txtpnStatus.setText(status);
+			}
+
+			private List<String> ListFile() throws IOException {
+				// TODO Auto-generated method stub
+				List<String> filesList = new ArrayList<>();
+				String fromFile = "https://trackingdaily.000webhostapp.com/file_list.txt";
+			    String toFile = System.getProperty("user.home")+"/tmp.txt" ;
+				URL website = new URL(fromFile);
+				ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+				FileOutputStream fos = new FileOutputStream(toFile);
+				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+				fos.close();
+				rbc.close();
+				
+				File file = new File(toFile); 
+				
+				BufferedReader br = new BufferedReader(new FileReader(file)); 
+				  
+				String st; 
+				while ((st = br.readLine()) != null) {
+				    filesList.add(st); 
+				} 
+				file.delete();
+				return filesList;
+			}
+		});
 	}
 	private File getFileFromResources(String fileName)  {
 		
@@ -607,5 +676,4 @@ public class Translator extends JFrame {
 	           return new File(resource.getFile());
 	     }
 	 }
-
 }
