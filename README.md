@@ -10,7 +10,7 @@ You just have installed *JRE* and *JDK* in your machine.
 ## Operation Manual
 >**Note:** If you are using *Windows* , copy the JAR (application)file to drive  other than *C:/ drive*
 - Select Browser **Chrome** if you wanted to use *chrome* or *chormium* browser or **Mozilla** if you wanted to use *Mozilla Firefox*
-	>It is suggested to use **Mozilla Firefox** installed in the machine and use **Mozilla** 
+	>It is suggested to install **Mozilla Firefox** in the machine and use **Mozilla** 
 - Click on **Check** button. Application will check the *OS* and *Browser* availability. 
 - Click on **Extract** 
 - Click on **Select File(.csv)** and show the path of the *dataset file*
