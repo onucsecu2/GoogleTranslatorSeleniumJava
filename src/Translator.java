@@ -1,5 +1,9 @@
 
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.EventQueue;
+import java.awt.Font;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -13,6 +17,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JProgressBar;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,34 +48,41 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextPane;
+import javax.swing.SwingWorker;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import java.awt.Label;
+import javax.swing.JTextField;
 
-public class Translator extends JFrame {
+public class Translator extends JFrame  {
 
 	private WebDriver driver =null;
 	private URL resource;
 	private JPanel contentPane;
 	private JComboBox comboBox ;
 	private JTextPane txtpnStatus;
-	private JCheckBox chckbxOsDetection, chckbxBrowserAvailability,chckbxGeckoDriver,chckbxSizeOfSentence ;
+	private JCheckBox chckbxOsDetection, chckbxBrowserAvailability,chckbxGeckoDriver,chckbxSizeOfSentence,chckbxSelectRows;
 	private JRadioButton rdbtnChrome,rdbtnMozilla ;
 	private JButton btnCheckSetting, btnExtract,btnSelectFilecsv, btnTranslate,btnStop,btnCheckUpdate;
-	private JProgressBar progressBar;
+	public JProgressBar progressBar;
 	private static String status="status: ";
 	private static String OS  = System.getProperty("os.name").toLowerCase();
 	private static int bit=Integer.valueOf(System.getProperty("sun.arch.data.model"));
-	private  int os,browser,max=0,lines = 0;
+	private static double version=1.0;
+	public  int os,browser,max=0,lines = 0,exLine=0,inc;
 	private openFile of;
+	private WebElement giventext;
 	private CSVWriter writer=null;
 	private boolean err=false;
 	private boolean exceed =false;
+	private boolean exit=false;
 	private List<String> records = new ArrayList<>();
 	private List<String> translated = new ArrayList<>();
 	private JLabel label ;
 	private String DIR =System.getProperty("user.home")+"/result.csv";
 	private JLabel lblOutput;
+	private JTextField textField;
 	/**
 	 * Launch the application.
 	 */
@@ -103,6 +116,7 @@ public class Translator extends JFrame {
 	 * Create the frame.
 	 */
 	public Translator() {
+		setTitle("English to Bangla translator Dataset v"+String.valueOf(version));
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 532, 510);
@@ -126,6 +140,7 @@ public class Translator extends JFrame {
 				rdbtnMozilla.setSelected(false);
 				btnCheckSetting.setEnabled(true);
 				browser=1;
+				btnCheckUpdate.setEnabled(false);
 
 			}
 		});
@@ -141,14 +156,16 @@ public class Translator extends JFrame {
 				rdbtnChrome.setSelected(false);
 				btnCheckSetting.setEnabled(true);
 				browser=2;
+				btnCheckUpdate.setEnabled(false);
 			}
 		});
 		
 		progressBar = new JProgressBar();
 		progressBar.setBounds(156, 17, 148, 14);
 		contentPane.add(progressBar);
-		progressBar.setMaximum(100);
-		progressBar.setMinimum(0);
+		progressBar.setVisible(false);
+		//progressBar.setMaximum(100);
+		//progressBar.setMinimum(0);
 		
 		btnCheckSetting = new JButton("Check");
 		btnCheckSetting.setBounds(22, 435, 163, 25);
@@ -159,26 +176,30 @@ public class Translator extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-
+				progressBar.setIndeterminate(true);
+				progressBar.setVisible(true);
 				
+				txtpnStatus.setForeground(Color.BLUE);
+				txtpnStatus.setText(status);
 				status=status+"\n"+"Detecting OS...";
+				//txtpnStatus.setForeground(Color.GREEN);
 				txtpnStatus.setText(status);
 				checkOS();
-				
 				txtpnStatus.setText(status);
 				if(err) {
 					status=status+"\n"+"Further examination is halted!!";
 					txtpnStatus.setText(status);
 				}
 				else {
+
 					status=status+"\n"+"Detecting Browser...";
 					checkbrowser();
 					if(err) {
-						status=status+"\n"+"Select another browser and check again or install the browser and try again";
+						status=status+"\n"+"The browser is not installed.\nInstall the browser and try again";
 						txtpnStatus.setText(status);
 					}else {
 						chckbxBrowserAvailability.setSelected(true);
-						status=status+"\n"+"Plz select the version and click Extracted";
+						status=status+"\n"+"Please select the browser version and click Extract";
 						txtpnStatus.setText(status);
 						btnExtract.setEnabled(true);
 						rdbtnMozilla.setEnabled(false);
@@ -194,11 +215,15 @@ public class Translator extends JFrame {
 							if(bit==64)
 								comboBox.addItem("Mozilla 64 bit");
 						}
+						progressBar.setIndeterminate(false);
+						progressBar.setVisible(false);
 						btnExtract.addActionListener(new ActionListener() {
 							
 							@Override
 							public void actionPerformed(ActionEvent arg0) {
 								// TODO Auto-generated method stub
+								progressBar.setIndeterminate(true);
+								progressBar.setVisible(true);
 								status=status+"\nExtracting .... ";
 								txtpnStatus.setText(status);
 								String x = String.valueOf(comboBox.getSelectedItem());
@@ -281,6 +306,8 @@ public class Translator extends JFrame {
 
 									}
 								}
+								progressBar.setIndeterminate(false);
+								progressBar.setVisible(false);
 								if(!err) {
 									
 									status=status+"done";
@@ -307,9 +334,14 @@ public class Translator extends JFrame {
 						        byte[] buffer = new byte[1024];
 						        try {
 									InputStream bis = new  FileInputStream(file);
-									
-									 OutputStream os =new FileOutputStream (dir);
-									 int length;
+									try {
+										File tmpFile =new File(dir);
+										tmpFile.delete();
+									}catch (Exception e){
+										e.printStackTrace();
+									}
+									OutputStream os =new FileOutputStream (dir);
+									int length;
 									 
 									 while ((length = bis.read(buffer)) > 0) {
 								            os.write(buffer, 0, length);
@@ -327,7 +359,7 @@ public class Translator extends JFrame {
 							}
 
 						});
-
+						
 						btnSelectFilecsv.addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent arg0) {
@@ -336,14 +368,23 @@ public class Translator extends JFrame {
 								of.pickMe();
 								label.setText("Input: "+of.selectedFile.getAbsolutePath());
 								try (BufferedReader br = new BufferedReader(new FileReader(of.selectedFile.getAbsolutePath()))) {
-								    String line=new String();			    
+								    String line=new String();		
+								    int range=0;
+								    if(chckbxSelectRows.isSelected()) {
+								    	range=Integer.valueOf(textField.getText());
+								    }
 								    while ((line = br.readLine()) != null) {
 								    	lines++;
 								    	
 								    	if(lines==1)
 								    			continue;
 								    	records.add(line);
-								    	max=Math.max(max,line.length());
+								    	if(max< line.length() ){
+								    		max=line.length();
+								    		exLine=lines;
+								    	}
+								    	if(lines==range && chckbxSelectRows.isSelected())
+								    			break;
 								    	//System.out.println(line);
 								    }
 								} catch (IOException e) {
@@ -351,14 +392,17 @@ public class Translator extends JFrame {
 									e.printStackTrace();
 									err=true;
 								}
-								if(max>100 || err==true) {
+								if(max>5000) {
 									err=true;
-									status=status+"\n The size of the sentences is large enough to translate";
+									status=status+"\nThe size of the sentences is Exceeded at "+String.valueOf(exLine);
+									txtpnStatus.setText(status);
+								}else if(err) {
+									status=status+"\nSomething is wrong";
 									txtpnStatus.setText(status);
 								}
 								else {
 									chckbxSizeOfSentence.setSelected(true);
-									 btnTranslate.setEnabled(true);
+									btnTranslate.setEnabled(true);
 								}
 								txtpnStatus.setText(status);
 							}
@@ -448,64 +492,27 @@ public class Translator extends JFrame {
 		btnTranslate.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent arg0) {
-				if(browser==2 && os==2 ) {
-					System.setProperty("webdriver.gecko.driver", System.getProperty("user.home")+"/geckodriver");
-					driver =new FirefoxDriver() ;
-				}else if(browser==2 && os==1) {
-					System.setProperty("webdriver.gecko.driver", System.getProperty("user.home")+"/geckodriver.exe");
-					driver =new FirefoxDriver() ;
-				}else if(browser==1 && os==2) {
-					System.setProperty("webdriver.chrome.driver",System.getProperty("user.home")+"/chromedriver");
-					driver =new ChromeDriver() ;
-				}else if(browser==1 && os==1) {
-					System.setProperty("webdriver.chrome.driver",System.getProperty("user.home")+"/chromedriver.exe");
-					driver =new ChromeDriver() ;
-				}
-		        String baseUrl = "https://translate.google.com/#view=home&op=translate&sl=en&tl=bn";					
-		        driver.get(baseUrl);
-				WebElement giventext =driver.findElement(By.xpath("//*[@id=\"source\"]"));
-				progressBar.setMaximum(lines);
 				
-				System.out.println(translated);
-				File file = new File(System.getProperty("user.home")+"/result.csv");
-				try {
-					
-					//FileWriter outputfile = new FileWriter(file);
-					//writer = new CSVWriter(outputfile);
-					PrintWriter writer = new PrintWriter(file, "UTF-8");
-					
-					
-					int i=0;
-				for (String string : records) {
-					//System.out.println(string);
-					i++;
-					giventext.sendKeys(string);
-					try {
-						TimeUnit.SECONDS.sleep(2);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						System.out.println("cant wait");
+				progressBar.setVisible(true);
+				progressBar.setForeground(Color.ORANGE);
+				progressBar.setMaximum(0);
+				progressBar.setMaximum(100);
+				progressBar.setStringPainted(true);
+
+				Task task = new Task();
+				task.addPropertyChangeListener(new PropertyChangeListener() {
+						
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+							// TODO Auto-generated method stub
+						if ("progress".equals(evt.getPropertyName())) {
+							//System.out.println("yess");
+					        progressBar.setValue((Integer)evt.getNewValue()*100/(lines-1));
+					    }
 					}
-					WebElement outtext =driver.findElement(By.xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[2]/div/span[1]/span"));
-					String ans=outtext.getText();
-					
-					translated.add(ans);
-					giventext.clear();
-					progressBar.setValue(i);
-					//String str[] = new String[] {ans};
-					writer.println(ans);
-					//writer.writeNext(str);
-				}
-				
-				driver.close();
-					
-					
-					writer.close();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} 
+				});
+				task.execute();
+
 				btnStop.setEnabled(true);
 			}
 		});
@@ -515,6 +522,7 @@ public class Translator extends JFrame {
 		btnStop = new JButton("Finish");
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
 			}
 		});
 		btnStop.setBounds(365, 435, 114, 25);
@@ -556,6 +564,7 @@ public class Translator extends JFrame {
 		txtpnStatus.setBounds(190, 123, 315, 284);
 		contentPane.add(txtpnStatus);
 		
+		
 		comboBox = new JComboBox();
 		comboBox.setBounds(22, 315, 127, 24);
 		contentPane.add(comboBox);
@@ -576,17 +585,45 @@ public class Translator extends JFrame {
 		btnCheckUpdate = new JButton("Check Update");
 		btnCheckUpdate.setBounds(365, 7, 140, 25);
 		contentPane.add(btnCheckUpdate);
+		
+		JLabel lblSelectRows = new JLabel("Select Rows");
+		lblSelectRows.setBounds(22, 145, 102, 15);
+		contentPane.add(lblSelectRows);
+		
+		chckbxSelectRows = new JCheckBox("Select Rows");
+		chckbxSelectRows.setBounds(23, 114, 126, 23);
+		contentPane.add(chckbxSelectRows);
+		chckbxSelectRows.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if(chckbxSelectRows.isSelected()) {
+					textField.setEnabled(true);
+				}else {
+					textField.setEnabled(false);
+				}
+			}
+		});
+		
+		textField = new JTextField();
+		textField.setBounds(110, 144, 75, 19);
+		contentPane.add(textField);
+		textField.setColumns(10);
+		textField.setEnabled(false);
 		btnCheckUpdate.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
+				progressBar.setVisible(true);
+				progressBar.setIndeterminate(true);
 				status="Locate the Application file...";
 				txtpnStatus.setText(status);
 				status="ok\nUpdating...\nListing files to update...";
 				txtpnStatus.setText(status);
 				updateJar uj =new updateJar();
-				File filesToAdd = new File ("/home/onu/Desktop/tracer/Translator.class") ;
+				
 				openFile of =new openFile();
 				of.locateJar();
 				File srcJarFile  = of.selectedFile;
@@ -603,7 +640,13 @@ public class Translator extends JFrame {
 				status=status+"ok\nDownloading updated files...";
 				txtpnStatus.setText(status);
 				try {
+					if(version!=Double.valueOf(filesList.get(0))) {
 					uj.updateJarFile(srcJarFile,filesList);
+					version=Double.valueOf(filesList.get(0));
+					}else {
+						status=status+"success\nAlready up-to-date. version "+String.valueOf(version)+"\n";
+						txtpnStatus.setText(status);
+					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					status="failed installing";
@@ -613,6 +656,8 @@ public class Translator extends JFrame {
 
 				status=status+"success\n";
 				txtpnStatus.setText(status);
+				progressBar.setIndeterminate(false);
+				progressBar.setVisible(false);
 			}
 
 			private List<String> ListFile() throws IOException {
@@ -635,6 +680,7 @@ public class Translator extends JFrame {
 				while ((st = br.readLine()) != null) {
 				    filesList.add(st); 
 				} 
+
 				file.delete();
 				return filesList;
 			}
@@ -676,4 +722,80 @@ public class Translator extends JFrame {
 	           return new File(resource.getFile());
 	     }
 	 }
+	    public class Task extends SwingWorker{
+	    	
+	        @Override 
+	        protected Object doInBackground() throws Exception {
+	        	int progress=0;
+				Thread thread =new Thread (new Runnable() {
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						if(browser==2 && os==2 ) {
+							System.setProperty("webdriver.gecko.driver", System.getProperty("user.home")+"/geckodriver");
+							driver =new FirefoxDriver() ;
+						}else if(browser==2 && os==1) {
+							System.setProperty("webdriver.gecko.driver", System.getProperty("user.home")+"/geckodriver.exe");
+							driver =new FirefoxDriver() ;
+						}else if(browser==1 && os==2) {
+							System.setProperty("webdriver.chrome.driver",System.getProperty("user.home")+"/chromedriver");
+							driver =new ChromeDriver() ;
+						}else if(browser==1 && os==1) {
+							System.setProperty("webdriver.chrome.driver",System.getProperty("user.home")+"/chromedriver.exe");
+							driver =new ChromeDriver() ;
+						}
+				        String baseUrl = "https://translate.google.com/#view=home&op=translate&sl=en&tl=bn";					
+				        driver.get(baseUrl);
+						giventext =driver.findElement(By.xpath("//*[@id=\"source\"]"));
+					}
+				});
+				
+				
+				thread.start();
+				try {
+					thread.join();
+					
+				} catch (InterruptedException e3) {
+					// TODO Auto-generated catch block
+					e3.printStackTrace();
+				}
+
+				//System.out.println(translated);
+				File file = new File(System.getProperty("user.home")+"/result.csv");
+				try {
+					
+					
+					PrintWriter writer = new PrintWriter(file, "UTF-8");
+					
+					for (String string : records) {
+						progress++;
+						//System.out.println(i);
+						setProgress(progress);
+						giventext.sendKeys(string);
+	
+						try {
+							TimeUnit.SECONDS.sleep(2);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							System.out.println("cant wait");
+						}
+						WebElement outtext =driver.findElement(By.xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[2]/div/span[1]/span"));
+						String ans=outtext.getText();
+						translated.add(ans);
+						giventext.clear();
+						writer.println(ans);
+					}
+					
+					driver.close();
+						
+						
+					writer.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	            return null;
+	        }
+	    }
 }
